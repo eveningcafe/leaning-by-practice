@@ -1,0 +1,22 @@
+groups:
+  - name: backend_alerts
+    rules:
+      # Alert when a backend server is down
+      - alert: BackendDown
+        expr: up{job="backends"} == 0
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Backend server is DOWN!"
+          description: "{{ $labels.instance }} has been down for more than 10 seconds."
+
+      # Alert when a backend server comes back up
+      - alert: BackendRecovered
+        expr: up{job="backends"} == 1 and changes(up{job="backends"}[1m]) > 0
+        for: 5s
+        labels:
+          severity: info
+        annotations:
+          summary: "Backend server RECOVERED!"
+          description: "{{ $labels.instance }} is back online."
