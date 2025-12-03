@@ -1,22 +1,35 @@
-# leaning-by-practice
+# learning-by-practice
+
+Hands-on labs for backend infrastructure concepts.
 
 ## Labs
 
 ### 1. [Cache (Redis)](./cache/README.md)
-- DB Caching
-- Session Sharing
+- **DB Caching** - Reduce database load with Redis cache
+- **Cache Invalidation** - TTL vs manual invalidation
+- **Session Sharing** - Share sessions across multiple app instances
 
 ### 2. [Load Balancer (Nginx)](./loadbalancer/README.md)
-- Round-robin distribution
+- Round-robin distribution across multiple backends
+
+### 3. [Monitor (Prometheus + Alertmanager)](./monitor/README.md)
+- Health checks with Prometheus
+- Alert rules when server goes down
+- Metrics collection (`/metrics` endpoint)
+
+### 4. [Reverse Proxy (Nginx + SSL)](./reverse-proxy/README.md)
+- SSL termination at reverse proxy
+- Self-signed certificate generation
+- HTTP → HTTPS redirect
+- Security headers
 
 ---
 
-## Concepts
+## Quick Start
 
-### Caching Server
-- **Redis**: In-memory data store for caching DB queries and session management
-- **Varnish Cache**: HTTP reverse proxy for web content caching
+Each lab runs with Docker Compose:
 
-### Load Balancer
-- **Nginx**: Web server and load balancer with round-robin distribution
-- **HAProxy**: High-performance TCP/HTTP load balancer
+```bash
+cd <lab-folder>
+docker compose up --build
+```
