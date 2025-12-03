@@ -1,0 +1,30 @@
+global:
+  scrape_interval: 5s          # How often to scrape targets
+  evaluation_interval: 5s      # How often to evaluate rules
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load alert rules
+rule_files:
+  - /etc/prometheus/alert_rules.yml
+
+# Scrape configurations
+scrape_configs:
+  # Prometheus itself
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Backend servers - Prometheus will detect when these are down
+  - job_name: 'backends'
+    static_configs:
+      - targets:
+        - backend1:5000
+        - backend2:5000
+        - backend3:5000
+    metrics_path: /metrics
