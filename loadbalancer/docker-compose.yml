@@ -11,18 +11,30 @@ services:
       - backend1
       - backend2
       - backend3
+    networks:
+      - app-network
 
   backend1:
     build: .
     environment:
       - SERVER_NAME=backend1
+    networks:
+      - app-network
 
   backend2:
     build: .
     environment:
       - SERVER_NAME=backend2
+    networks:
+      - app-network
 
   backend3:
     build: .
     environment:
       - SERVER_NAME=backend3
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
