@@ -185,3 +185,112 @@ curl -b cookies.txt http://localhost:5001/profile
 Without Redis: Each app has its own session → User must login again on each
 With Redis:    Sessions shared across all apps → Login once, works everywhere
 ```
+
+---
+
+## Lab 1.3: Distributed Lock - Prevent Race Conditions
+
+Prevent race conditions when multiple app instances access shared resources.
+
+### The Problem
+
+```
+Without Lock:
+  App1: Read stock (100) ──────────────────→ Decrement → stock = 99
+  App2:      Read stock (100) ─────────────→ Decrement → stock = 99  (WRONG!)
+  App3:           Read stock (100) ────────→ Decrement → stock = 99  (WRONG!)
+
+  Result: 3 purchases but stock only decreased by 1! (Overselling)
+
+With Lock:
+  App1: Acquire lock → Read (100) → Decrement (99) → Release lock
+  App2:                 [waiting for lock...] → Acquire → Read (99) → Decrement (98) → Release
+  App3:                                          [waiting...] → Acquire → Read (98) → Decrement (97) → Release
+
+  Result: 3 purchases, stock correctly decreased by 3
+```
+
+### Without Lock (Race Condition)
+
+```python
+# Non-atomic read-modify-write - causes race condition!
+stock = redis_client.get('product:stock')   # App1 reads 100, App2 reads 100
+time.sleep(0.1)                              # Both processing...
+redis_client.set('product:stock', stock - 1) # Both write 99! (should be 98)
+```
+
+### How It Works
+
+```python
+# Acquire lock using SET NX (Set if Not eXists)
+lock_id = uuid.uuid4()
+acquired = redis_client.set(f'lock:{name}', lock_id, nx=True, ex=10)
+
+if acquired:
+    try:
+        # CRITICAL SECTION - only one process can be here
+        stock = redis_client.get('product:stock')
+        redis_client.decr('product:stock')
+    finally:
+        # Release lock (only if we own it)
+        release_lock(name, lock_id)
+```
+
+### Run the Lab
+
+```bash
+cd distributed-lock
+docker compose up --build
+```
+
+Wait for startup, then in another terminal:
+
+```bash
+chmod +x test.sh && ./test.sh
+```
+
+### Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /` | API documentation |
+| `GET /buy/no-lock` | Purchase WITHOUT lock (race condition!) |
+| `GET /buy/with-lock` | Purchase WITH lock (safe) |
+| `GET /buy/with-lock-retry` | Purchase WITH lock + retry (safe + resilient) |
+| `GET /stock` | Check current stock |
+| `GET /stock/reset` | Reset stock to 100 |
+| `GET /stats` | View purchase stats and race condition count |
+
+### Test Manually
+
+```bash
+# 1. Reset stock
+curl http://localhost:5001/stock/reset
+
+# 2. Send concurrent requests WITHOUT lock (causes race conditions)
+for i in {1..10}; do curl -s http://localhost:500$((1 + i % 3))/buy/no-lock & done; wait
+
+# 3. Check stats - race_conditions_detected > 0 means overselling!
+curl http://localhost:5001/stats | jq .
+
+# 4. Reset and try WITH lock
+curl http://localhost:5001/stock/reset
+for i in {1..10}; do curl -s http://localhost:500$((1 + i % 3))/buy/with-lock-retry & done; wait
+
+# 5. Check stats - no race conditions, stock is accurate
+curl http://localhost:5001/stats | jq .
+```
+
+### Expected Result
+
+```
+Without lock: 20 purchases → stock mismatch, race conditions detected
+With lock:    20 purchases → stock = 80, no race conditions
+```
+
+### Key Takeaway
+
+```
+Without Lock: Multiple apps can read/write simultaneously → Data corruption
+With Lock:    Only one app can access critical section → Data integrity
+```
