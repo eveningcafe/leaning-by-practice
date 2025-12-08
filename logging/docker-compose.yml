@@ -44,6 +44,8 @@ services:
     container_name: app1
     environment:
       - APP_NAME=app1
+    ports:
+      - "5000:5000"
     volumes:
       - app_logs:/var/log/app
     depends_on:
