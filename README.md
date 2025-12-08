@@ -23,6 +23,12 @@ Hands-on labs for backend infrastructure concepts.
 - HTTP → HTTPS redirect
 - Security headers
 
+### 5. [Logging (ELK Stack)](./logging/README.md)
+- Centralized logging with Elasticsearch, Kibana, Filebeat
+- JSON structured logging for easy parsing
+- Log aggregation from multiple app instances
+- Search and visualize logs in Kibana
+
 ---
 
 ## Quick Start
