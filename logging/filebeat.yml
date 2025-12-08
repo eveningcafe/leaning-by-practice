@@ -1,0 +1,65 @@
+# Filebeat Configuration
+# Collects logs from applications and ships to Elasticsearch
+
+filebeat.inputs:
+  # Collect JSON logs from application files
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/app/*.log
+    json.keys_under_root: true
+    json.add_error_key: true
+    json.message_key: message
+    fields:
+      log_type: application
+    fields_under_root: true
+
+  # Collect Docker container logs
+  - type: container
+    enabled: true
+    paths:
+      - /var/lib/docker/containers/*/*.log
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+
+# Elasticsearch output
+output.elasticsearch:
+  hosts: ["elasticsearch:9200"]
+  indices:
+    - index: "app-logs-%{+yyyy.MM.dd}"
+      when.equals:
+        log_type: "application"
+    - index: "docker-logs-%{+yyyy.MM.dd}"
+      when.has_fields: ["container.id"]
+    - index: "filebeat-%{+yyyy.MM.dd}"
+
+# Kibana setup (for dashboards)
+setup.kibana:
+  host: "kibana:5601"
+
+# Index template settings
+setup.template:
+  name: "filebeat"
+  pattern: "filebeat-*"
+  settings:
+    index.number_of_shards: 1
+    index.number_of_replicas: 0
+
+# Logging
+logging.level: info
+logging.to_files: false
+logging.to_stderr: true
+
+# Processors - add metadata
+processors:
+  - add_host_metadata:
+      when.not.contains.tags: forwarded
+  - add_cloud_metadata: ~
+  - decode_json_fields:
+      fields: ["message"]
+      process_array: false
+      max_depth: 2
+      target: ""
+      overwrite_keys: true
+      add_error_key: true

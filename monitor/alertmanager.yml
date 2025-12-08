@@ -1,13 +1,32 @@
 global:
   resolve_timeout: 1m
+  telegram_api_url: 'https://api.telegram.org'
 
 route:
   group_by: ['alertname']
   group_wait: 10s
   group_interval: 10s
   repeat_interval: 1h
-  receiver: 'web'
+  receiver: 'telegram'
 
 receivers:
+  - name: 'telegram'
+    telegram_configs:
+      # Replace these with your actual values from telegram-setup/setup_bot.py
+      - bot_token: 'YOUR_BOT_TOKEN_HERE'
+        chat_id: 0  # Replace with your chat ID (integer)
+        send_resolved: true
+        parse_mode: 'HTML'
+        message: |
+          {{ if eq .Status "firing" }}🔴 <b>FIRING: {{ .CommonLabels.alertname }}</b>{{ else }}🟢 <b>RESOLVED: {{ .CommonLabels.alertname }}</b>{{ end }}
+
+          {{ range .Alerts }}
+          <b>Alert:</b> {{ .Labels.alertname }}
+          <b>Severity:</b> {{ .Labels.severity }}
+          <b>Instance:</b> {{ .Labels.instance }}
+          <b>Summary:</b> {{ .Annotations.summary }}
+          <b>Status:</b> {{ .Status }}
+          {{ end }}
+
   - name: 'web'
-    # No external notifications - view alerts at http://localhost:9093
+    # Fallback - view alerts at http://localhost:9093
