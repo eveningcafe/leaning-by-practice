@@ -69,16 +69,16 @@ def __init__(self, repo: UserRepository):  # Business uses interface
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  PRESENTATION  │  HTTP routes, controllers (same in both)  │
+│  PRESENTATION  │  HTTP routes, controllers (same in both)   │
 ├─────────────────────────────────────────────────────────────┤
-│  APPLICATION   │  WHY - Business logic, validation         │
+│  APPLICATION   │  WHY - Business logic, validation          │
 │                │  Calls domain interfaces                   │
 ├─────────────────────────────────────────────────────────────┤
-│  DOMAIN        │  WHAT - Defines interfaces/contracts      │
-│                │  "I need a UserRepository"                │
+│  DOMAIN        │  WHAT - Defines interfaces/contracts       │
+│                │  "I need a UserRepository"                 │
 ├─────────────────────────────────────────────────────────────┤
-│  INFRASTRUCTURE│  HOW - Implements interfaces              │
-│                │  SQLite, PostgreSQL, MongoDB (SWAPPABLE)  │
+│  INFRASTRUCTURE│  HOW - Implements interfaces               │
+│                │  SQLite, PostgreSQL, MongoDB (SWAPPABLE)   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
