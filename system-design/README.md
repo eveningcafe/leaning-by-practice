@@ -7,9 +7,9 @@ Learn **Monolith** vs **Microservices**.
 ```
 ┌─────────────────────────────────┐
 │        ONE APPLICATION          │
-│   ┌──────┐      ┌──────┐       │
-│   │ User │      │ Order│       │
-│   └──────┘      └──────┘       │
+│   ┌──────┐      ┌──────┐        │
+│   │ User │      │ Order│        │
+│   └──────┘      └──────┘        │
 │         ONE DATABASE            │
 └─────────────────────────────────┘
         Single deployment
