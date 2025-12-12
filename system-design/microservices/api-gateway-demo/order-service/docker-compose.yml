@@ -1,0 +1,10 @@
+# Run on VPS 2
+services:
+  order-service:
+    build: .
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./db:/app/data
+    environment:
+      - GATEWAY_URL=http://GATEWAY_IP  # Change to Gateway IP
