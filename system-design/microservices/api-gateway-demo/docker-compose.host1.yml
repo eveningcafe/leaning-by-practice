@@ -1,0 +1,15 @@
+# HOST 1: Gateway + User Service
+services:
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./api-gateway/nginx.conf:/etc/nginx/conf.d/default.conf
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./user-db:/app/data
