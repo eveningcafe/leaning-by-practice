@@ -1,0 +1,31 @@
+# LOCAL TESTING - All services on one machine
+# For production, deploy each service separately
+
+services:
+  user-service:
+    build: ./user-service
+    ports:
+      - "5001:5001"
+    volumes:
+      - ./user-db:/app/data
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./order-db:/app/data
+    environment:
+      - GATEWAY_URL=http://api-gateway
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./api-gateway/nginx.local.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - user-service
+      - order-service
