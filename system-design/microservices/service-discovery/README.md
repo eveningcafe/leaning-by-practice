@@ -1,6 +1,6 @@
 # Service Discovery with Consul
 
-Services register and discover each other dynamically.
+Services register and discover each other dynamically. No gateway needed.
 
 ```
 ┌────────────────┐
@@ -17,6 +17,83 @@ Services register and discover each other dynamically.
 └────────┘ └────────┘
 ```
 
+---
+
+## Option 1: Single Host (Local/Dev)
+
+Everything runs on one machine.
+
+```
+┌─────────────────────────────────────┐
+│            ONE HOST                 │
+│  ┌──────────┐                       │
+│  │  Consul  │ :8500                 │
+│  └────┬─────┘                       │
+│       │ register + discover         │
+│  ┌────┴────┐                        │
+│  ↓         ↓                        │
+│ ┌────┐   ┌─────┐                    │
+│ │User│   │Order│                    │
+│ └────┘   └─────┘                    │
+└─────────────────────────────────────┘
+```
+
+### Run
+
+```bash
+docker compose up --build
+```
+
+### Test
+
+```bash
+# Consul UI
+open http://localhost:8500
+
+# Create user + order
+curl -X POST http://localhost:5001/users -H "Content-Type: application/json" -d '{"name": "Alice"}'
+curl -X POST http://localhost:5002/orders -H "Content-Type: application/json" -d '{"user_id": 1, "item": "Book"}'
+```
+
+---
+
+## Option 2: Multi Host (Production)
+
+Consul cluster across hosts. Services register to local Consul agent.
+
+```
+┌─────────────────┐     ┌─────────────────┐
+│     HOST 1      │     │     HOST 2      │
+│                 │     │                 │
+│ ┌─────────────┐ │     │ ┌─────────────┐ │
+│ │Consul Agent │◄┼─────┼─┤Consul Agent │ │
+│ └──────┬──────┘ │     │ └──────┬──────┘ │
+│        │        │     │        │        │
+│ ┌──────▼──────┐ │     │ ┌──────▼──────┐ │
+│ │ User Service│ │     │ │Order Service│ │
+│ └─────────────┘ │     │ └─────────────┘ │
+└─────────────────┘     └─────────────────┘
+
+Order discovers User via Consul → calls User directly
+```
+
+### Host 1: Consul + User
+
+```bash
+docker compose -f docker-compose.host1.yml up -d
+```
+
+### Host 2: Consul + Order
+
+```bash
+# Set Consul join address
+export CONSUL_JOIN=HOST1_IP
+
+docker compose -f docker-compose.host2.yml up -d
+```
+
+---
+
 ## How It Works
 
 ```python
@@ -31,42 +108,32 @@ c.agent.service.register(
 _, services = c.health.service("user-service", passing=True)
 user_url = f"http://{services[0]['Service']['Address']}:{services[0]['Service']['Port']}"
 
-# 3. Call directly (no gateway)
+# 3. Call directly (no gateway!)
 resp = requests.get(f"{user_url}/users/1")
 ```
 
-## Run
+---
 
-```bash
-docker compose up --build
+## Files
+
+```
+service-discovery/
+├── docker-compose.yml         # Single host
+├── docker-compose.host1.yml   # Multi host: Consul + User
+├── docker-compose.host2.yml   # Multi host: Consul + Order
+├── user-service/
+│   ├── app.py                 # Registers with Consul
+│   └── Dockerfile
+└── order-service/
+    ├── app.py                 # Discovers via Consul
+    └── Dockerfile
 ```
 
-## Test
-
-```bash
-# Check Consul UI
-open http://localhost:8500
-
-# Check registered services
-curl http://localhost:8500/v1/agent/services | jq
-
-# Create user
-curl -X POST http://localhost:5001/users \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Alice"}'
-
-# Create order (order discovers user via Consul)
-curl -X POST http://localhost:5002/orders \
-  -H "Content-Type: application/json" \
-  -d '{"user_id": 1, "item": "Book"}'
-
-# See discovered URL in response
-curl http://localhost:5002/
-```
+---
 
 ## Key Difference from API Gateway
 
 ```
-API Gateway:     order → gateway → user (extra hop)
-Service Discovery: order → consul (query) → user (direct)
+API Gateway:       order → gateway → user (extra hop)
+Service Discovery: order → consul (query) → user (direct, faster)
 ```

@@ -1,0 +1,18 @@
+# HOST 2: Consul Agent + Order Service
+services:
+  consul:
+    image: consul:1.15
+    command: agent -retry-join=${CONSUL_JOIN} -client=0.0.0.0 -advertise=${HOST_IP:-127.0.0.1}
+    environment:
+      - CONSUL_JOIN=${CONSUL_JOIN}  # Set to Host 1 IP
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "5002:5002"
+    volumes:
+      - ./order-db:/app/data
+    depends_on:
+      - consul
+    environment:
+      - CONSUL_HOST=consul
