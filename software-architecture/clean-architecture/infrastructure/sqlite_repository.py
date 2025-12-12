@@ -4,7 +4,7 @@
 import sqlite3
 from domain.interfaces import UserRepository
 
-DATABASE = "/app/data/users.db"
+DATABASE = "/app/db/users.db"
 
 
 class SQLiteUserRepository(UserRepository):

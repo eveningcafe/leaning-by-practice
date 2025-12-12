@@ -2,7 +2,7 @@
 
 import sqlite3
 
-DATABASE = "/app/data/users.db"
+DATABASE = "/app/db/users.db"
 
 
 def init_db():
