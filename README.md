@@ -29,6 +29,16 @@ Hands-on labs for backend infrastructure concepts.
 - Log aggregation from multiple app instances
 - Search and visualize logs in Kibana
 
+### 6. [Software Architecture](./software-architecture/README.md)
+- **3-Tier Architecture** - Presentation → Business → Data layers
+- **Clean Architecture** - Dependency inversion, swappable infrastructure
+- When to use which
+
+### 7. [System Design](./system-design/README.md)
+- **Monolith vs Microservices** - When to split
+- **API Gateway** - Nginx routing, single/multi host setup
+- **Service Discovery** - Consul for dynamic service registration
+
 ---
 
 ## Quick Start
