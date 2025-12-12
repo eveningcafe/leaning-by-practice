@@ -23,9 +23,19 @@ domain/          →  application/     →  infrastructure/
 
 ## Run
 
+### Option 1: SQLite (default)
+
 ```bash
 docker compose up --build
 ```
+
+### Option 2: PostgreSQL (swap infrastructure)
+
+```bash
+docker compose -f docker-compose.postgres.yml up --build
+```
+
+**Same business logic, different database!**
 
 ## Test
 
@@ -63,23 +73,42 @@ class UserService:
 repo = PostgresUserRepository()  # No change to UserService!
 ```
 
-## Where to Put New Database (e.g., PostgreSQL)?
-
-Add new implementation in `infrastructure/`:
+## Files
 
 ```
-infrastructure/
-├── sqlite_repository.py    # Current
-└── postgres_repository.py  # New - implements same interface
+clean-architecture/
+├── docker-compose.yml           # SQLite version
+├── docker-compose.postgres.yml  # PostgreSQL version
+├── app.py                       # Uses SQLite
+├── app.postgres.py              # Uses PostgreSQL
+├── Dockerfile                   # SQLite
+├── Dockerfile.postgres          # PostgreSQL
+├── domain/
+│   └── interfaces.py            # Repository interface
+├── application/
+│   └── user_service.py          # Business logic (unchanged!)
+├── infrastructure/
+│   ├── sqlite_repository.py     # SQLite implementation
+│   └── postgres_repository.py   # PostgreSQL implementation
+└── presentation/
+    └── routes.py                # HTTP handlers
 ```
 
-Then swap in `app.py`:
+## How to Swap Database
+
+Add new implementation in `infrastructure/`, then change `app.py`:
+
 ```python
-# Before
+# app.py (SQLite)
+from infrastructure.sqlite_repository import SQLiteUserRepository
 repo = SQLiteUserRepository()
-# After
-repo = PostgresUserRepository("postgresql://user:pass@localhost/db")
+
+# app.postgres.py (PostgreSQL)
+from infrastructure.postgres_repository import PostgresUserRepository
+repo = PostgresUserRepository(host="db", port=5432, ...)
 ```
+
+**UserService stays exactly the same!**
 
 ## What Can Be Swapped?
 

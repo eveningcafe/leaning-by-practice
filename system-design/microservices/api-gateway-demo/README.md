@@ -14,7 +14,7 @@ Everything runs on one machine.
 ┌─────────────────────────────────────┐
 │            ONE HOST                 │
 │  ┌─────────┐                        │
-│  │ Gateway │ :80                    │
+│  │ Gateway │ :5000                  │
 │  └────┬────┘                        │
 │       ├────────────┐                │
 │       ↓            ↓                │
@@ -34,8 +34,8 @@ docker compose up --build
 ### Test
 
 ```bash
-curl http://localhost/users
-curl http://localhost/orders
+curl http://localhost:5000/users
+curl http://localhost:5000/orders
 ```
 
 ---
