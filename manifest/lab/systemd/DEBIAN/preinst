@@ -1,0 +1,13 @@
+#!/bin/sh
+# Pre-installation script
+# This runs before the package files are extracted
+
+set -e
+
+# Check if Python3 is available
+if ! command -v python3 >/dev/null 2>&1; then
+    echo "Python3 is required but not installed."
+    exit 1
+fi
+
+echo "Pre-installation checks passed."

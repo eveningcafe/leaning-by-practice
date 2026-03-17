@@ -1,0 +1,16 @@
+[Unit]
+Description=Hello Web App
+After=network.target redis.service
+Requires=redis.service
+
+[Service]
+Type=simple
+User=www-data
+Environment="REDIS_HOST=localhost"
+ExecStart=/usr/bin/python3 /usr/local/bin/hello-app
+Restart=on-failure
+CPUQuota=50%
+MemoryLimit=256M
+
+[Install]
+WantedBy=multi-user.target

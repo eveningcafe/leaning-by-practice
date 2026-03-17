@@ -1,0 +1,7 @@
+Package: hello-app
+Version: 1.0
+Architecture: all
+Depends: python3, python3-flask, redis-server
+Maintainer: Dev Team
+Description: Simple web counter app
+ A Python Flask application that counts visits using Redis as backend storage.

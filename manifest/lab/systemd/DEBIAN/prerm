@@ -1,0 +1,3 @@
+#!/bin/sh
+systemctl stop hello-app.service
+systemctl disable hello-app.service

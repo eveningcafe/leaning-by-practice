@@ -1,0 +1,17 @@
+#!/bin/sh
+# Post-installation script
+# This runs after the package files are extracted
+
+set -e
+
+# Install Python dependencies if pip is available
+if command -v pip3 >/dev/null 2>&1; then
+    pip3 install flask redis || true
+fi
+
+# Reload systemd and enable service
+systemctl daemon-reload
+systemctl enable hello-app.service || true
+# Start the service
+systemctl start hello-app.service || true
+echo "Service installed and started."
