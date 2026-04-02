@@ -60,7 +60,7 @@ aws sts get-caller-identity --query Account --output text
 aws lambda create-function \
   --function-name hello-lambda \
   --runtime python3.12 \
-  --role arn:aws:iam::YOUR_ACCOUNT_ID:role/lambda-basic-role \
+  --role arn:aws:iam::891920435433:role/lambda-basic-role \
   --handler handler.lambda_handler \
   --zip-file fileb://function.zip
 ```
@@ -160,7 +160,7 @@ This is the real-world pattern. Put API Gateway in front of Lambda so anyone can
 aws apigatewayv2 create-api \
   --name hello-api \
   --protocol-type HTTP \
-  --target arn:aws:lambda:ap-southeast-1:YOUR_ACCOUNT_ID:function:hello-lambda
+  --target arn:aws:lambda:ap-southeast-1:891920435433:function:hello-lambda
 
 # Give API Gateway permission to invoke Lambda
 aws lambda add-permission \
@@ -172,12 +172,12 @@ aws lambda add-permission \
 
 API Gateway returns a public URL:
 ```
-https://{api-id}.execute-api.ap-southeast-1.amazonaws.com/
+https://p80e2qsxil.execute-api.ap-southeast-1.amazonaws.com/
 ```
 
 Now plain curl works — no signing needed:
 ```bash
-curl -X POST https://{api-id}.execute-api.ap-southeast-1.amazonaws.com/ \
+curl -X POST https://p80e2qsxil.execute-api.ap-southeast-1.amazonaws.com/ \
   -H "Content-Type: application/json" \
   -d '{"name": "Hoa"}'
 

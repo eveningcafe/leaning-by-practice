@@ -1,0 +1,14 @@
+# Invoke via AWS CLI
+aws lambda invoke \
+  --function-name hello-lambda \
+  --payload '{"name": "Hoa"}' \
+  --cli-binary-format raw-in-base64-out \
+  response.json \
+  --profile AdministratorAccess-891920435433
+
+cat response.json
+
+# Invoke via HTTP curl (API Gateway)
+curl -X POST https://p80e2qsxil.execute-api.ap-southeast-1.amazonaws.com/ \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Hoa"}'
