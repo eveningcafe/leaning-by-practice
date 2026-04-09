@@ -1,0 +1,15 @@
+{
+  "Id": "EntireBucketAnalysis",
+  "StorageClassAnalysis": {
+    "DataExport": {
+      "OutputSchemaVersion": "V_1",
+      "Destination": {
+        "S3BucketDestination": {
+          "Format": "CSV",
+          "Bucket": "arn:aws:s3:::BUCKET_NAME",
+          "Prefix": "analysis-reports/"
+        }
+      }
+    }
+  }
+}

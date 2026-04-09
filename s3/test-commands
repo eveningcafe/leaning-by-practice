@@ -1,0 +1,28 @@
+# Quick S3 Test Commands
+
+# Create bucket
+BUCKET="demo-bucket-$(date +%s)"
+aws s3api create-bucket --bucket $BUCKET --region ap-southeast-1 --create-bucket-configuration LocationConstraint=ap-southeast-1
+
+# Enable versioning
+aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled
+
+# Create test files
+echo "Hot data" > hot.txt
+echo "Warm data" > warm.txt
+echo "Cold data" > cold.txt
+
+# Upload with different storage classes
+aws s3api put-object --bucket $BUCKET --key hot/data.txt --body hot.txt --storage-class STANDARD
+aws s3api put-object --bucket $BUCKET --key warm/data.txt --body warm.txt --storage-class STANDARD_IA
+aws s3api put-object --bucket $BUCKET --key cold/data.txt --body cold.txt --storage-class GLACIER_IR
+
+# List objects with storage class
+aws s3api list-objects-v2 --bucket $BUCKET --query 'Contents[*].[Key,StorageClass]' --output table
+
+# Apply lifecycle policy
+aws s3api put-bucket-lifecycle-configuration --bucket $BUCKET --lifecycle-configuration file://lifecycle-policy.json
+
+# Clean up
+aws s3 rm s3://$BUCKET --recursive
+aws s3api delete-bucket --bucket $BUCKET

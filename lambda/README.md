@@ -58,7 +58,7 @@ aws sts get-caller-identity --query Account --output text
 
 # Create function
 aws lambda create-function \
-  --function-name hello-lambda \
+  --function-name hello-lambda-today \
   --runtime python3.12 \
   --role arn:aws:iam::891920435433:role/lambda-basic-role \
   --handler handler.lambda_handler \
@@ -158,14 +158,14 @@ This is the real-world pattern. Put API Gateway in front of Lambda so anyone can
 ```bash
 # Create HTTP API Gateway and connect to Lambda
 aws apigatewayv2 create-api \
-  --name hello-api \
+  --name hello-api-lambda \
   --protocol-type HTTP \
   --target arn:aws:lambda:ap-southeast-1:891920435433:function:hello-lambda
 
 # Give API Gateway permission to invoke Lambda
 aws lambda add-permission \
   --function-name hello-lambda \
-  --statement-id api-gateway-invoke \
+  --statement-id api-gateway-invoke-v2 \
   --action lambda:InvokeFunction \
   --principal apigateway.amazonaws.com
 ```
