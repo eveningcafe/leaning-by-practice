@@ -46,11 +46,6 @@ variable "worker_instance_type" {
   default     = "t3.medium"  # 2 vCPU, 4 GB RAM - good for worker nodes
 }
 
-variable "client_instance_type" {
-  description = "Instance type for Kubernetes client node"
-  type        = string
-  default     = "t3.small"  # 2 vCPU, 2 GB RAM - sufficient for client
-}
 
 variable "ssh_public_key_path" {
   description = "Path to SSH public key file"

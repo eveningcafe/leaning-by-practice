@@ -18,16 +18,6 @@ output "worker_private_ip" {
   value       = aws_instance.k8s_worker.private_ip
 }
 
-output "client_public_ip" {
-  description = "Public IP of Kubernetes client node"
-  value       = aws_instance.k8s_client.public_ip
-}
-
-output "client_private_ip" {
-  description = "Private IP of Kubernetes client node"
-  value       = aws_instance.k8s_client.private_ip
-}
-
 output "ssh_command_controller" {
   description = "SSH command to connect to controller node"
   value       = "ssh -i ${var.ssh_public_key_path} ubuntu@${aws_instance.k8s_controller.public_ip}"
@@ -36,11 +26,6 @@ output "ssh_command_controller" {
 output "ssh_command_worker" {
   description = "SSH command to connect to worker node"
   value       = "ssh -i ${var.ssh_public_key_path} ubuntu@${aws_instance.k8s_worker.public_ip}"
-}
-
-output "ssh_command_client" {
-  description = "SSH command to connect to client node"
-  value       = "ssh -i ${var.ssh_public_key_path} ubuntu@${aws_instance.k8s_client.public_ip}"
 }
 
 output "kubeadm_init_command" {
