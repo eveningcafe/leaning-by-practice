@@ -19,13 +19,13 @@ variable "environment" {
 variable "vpc_id" {
   description = "VPC ID where instances will be created"
   type        = string
-  default     = "vpc-04ec1f006a5745d7c"
+  default     = "vpc-036b914bdf14d227e"
 }
 
 variable "subnet_id" {
   description = "Subnet ID for instances"
   type        = string
-  default     = "subnet-0fd9aaba774f4f68e"
+  default     = "subnet-0c51b6b97f99b69ed"
 }
 
 variable "ubuntu_ami" {
