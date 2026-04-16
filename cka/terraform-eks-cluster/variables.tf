@@ -19,7 +19,7 @@ variable "environment" {
 variable "kubernetes_version" {
   description = "Kubernetes version to use for the EKS cluster"
   type        = string
-  default     = "1.29"
+  default     = "1.35"
 }
 
 # Network Configuration - Using existing VPC/Subnet from the other setup
