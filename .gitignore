@@ -213,3 +213,12 @@ __marimo__/
 *-db/
 */db/
 *.db
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+*.tfvars
+!terraform.tfvars.example
