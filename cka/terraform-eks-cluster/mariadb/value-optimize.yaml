@@ -1,0 +1,6 @@
+
+auth:
+  rootPassword: root_password
+  database: my_database
+  username: my_user
+  password: my_password

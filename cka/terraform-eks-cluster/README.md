@@ -46,6 +46,17 @@ curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/d
 sudo mv /tmp/eksctl /usr/local/bin
 ```
 
+
+4. add on storage controller 
+
+eksctl create iamserviceaccount --name ebs-csi-controller-sa --namespace kube-system --cluster devops-class-eks --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --approve --role-only --role-name AmazonEKS_EBS_CSI_DriverRole
+
+eksctl create addon \
+--name aws-ebs-csi-driver \
+--cluster <cluster> \
+--service-account-role-arn arn:aws:iam::$(aws sts get-caller-identity --query Account --output text):role/AmazonEKS_EBS_CSI_DriverRole \
+--force
+
 ### Deploy the Cluster
 
 ```bash

@@ -1,0 +1,118 @@
+# Optimized MariaDB values for learning/development
+# Cost-optimized for minimal resource usage
+
+# Root password for MariaDB
+auth:
+  rootPassword: "admin123"
+  database: "myapp"
+  username: "appuser"
+  password: "apppass123"
+  replicationUser: "replicator"
+  replicationPassword: "replica123"
+
+# Secondary (replica) database configuration
+secondary:
+  enabled: true  # Enable secondary for HA learning
+  replicaCount: 1  # Single replica for cost savings
+  # Resource limits - minimal for learning
+  resources:
+    limits:
+      memory: 512Mi
+      cpu: 500m
+    requests:
+      memory: 256Mi
+      cpu: 250m
+  
+  # Persistence for secondary
+  persistence:
+    enabled: true
+    size: 2Gi
+    storageClass: "gp2"
+  
+  # Pod anti-affinity to spread primary and secondary
+  podAntiAffinityPreset: soft
+
+# Primary database configuration
+primary:
+  # Resource limits - minimal for learning
+  resources:
+    limits:
+      memory: 512Mi
+      cpu: 500m
+    requests:
+      memory: 256Mi
+      cpu: 250m
+  
+  # Minimal persistence for cost savings
+  persistence:
+    enabled: true
+    size: 2Gi  # Minimal size
+    storageClass: "gp2"  # AWS EBS gp2 is cost-effective
+  
+  # Node affinity for spot instances if available
+  nodeSelector: {}
+  tolerations: []
+
+# Enable replication for HA learning
+architecture: replication
+
+# Disable metrics for cost savings
+metrics:
+  enabled: false
+
+# Service configuration
+service:
+  type: ClusterIP  # Internal only, no LoadBalancer cost
+  port: 3306
+
+# Volume permissions - simplified
+volumePermissions:
+  enabled: false
+
+# Disable backup for learning environment
+backup:
+  enabled: false
+
+# Update strategy
+updateStrategy:
+  type: Recreate  # Faster for dev, no rolling update
+
+# Security context
+securityContext:
+  enabled: true
+  fsGroup: 1001
+  runAsUser: 1001
+
+# Liveness and readiness probes
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+  successThreshold: 1
+
+# Network policy
+networkPolicy:
+  enabled: false  # Simplified for learning
+
+# Pod disruption budget
+podDisruptionBudget:
+  enabled: true  # Needed for replication
+  minAvailable: 1
+
+# Init containers
+initContainers: []
+
+# Extra environment variables
+extraEnvVars:
+  - name: MARIADB_EXTRA_FLAGS
+    value: "--max-connections=50"  # Limit connections for small instance

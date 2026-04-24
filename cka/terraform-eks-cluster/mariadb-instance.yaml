@@ -1,0 +1,139 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: mariadb-server
+  namespace: default
+spec:
+  # Root password configuration
+  rootPasswordSecretKeyRef:
+    name: mariadb-root-password
+    key: password
+
+  # Database configuration
+  database: myapp
+  username: appuser
+  passwordSecretKeyRef:
+    name: mariadb-user-password
+    key: password
+
+  # MariaDB version
+  image: mariadb:11.4.2
+
+  # Port
+  port: 3306
+
+  # Resource specifications - optimized for learning
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  # Storage configuration
+  storage:
+    size: 2Gi
+    storageClassName: gp2
+    resizeInUseVolumes: true
+    waitForVolumeResize: true
+
+  # Replication configuration for HA
+  replicas: 2  # 1 primary + 1 replica
+
+  # Replication settings
+  replication:
+    enabled: true
+    primary:
+      # Primary pod config
+      podDisruptionBudget:
+        minAvailable: 1
+      automaticFailover: true
+    
+    replica:
+      # Read replica configuration
+      waitPoint: "AfterSync"
+      gtid: CurrentPos
+      replicas: 1
+      # Connection to primary
+      connectionTimeout: 10s
+      connectionRetryInterval: 10s
+
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 3306
+
+  # Connection configuration
+  connection:
+    secretName: mariadb-conn
+    secretTemplate:
+      key: dsn
+
+  # Monitoring disabled for cost savings
+  metrics:
+    enabled: false
+
+  # Health checks
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+  
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+
+  # Update strategy
+  updateStrategy:
+    type: RollingUpdate
+
+  # Affinity - soft anti-affinity for learning
+  affinity:
+    antiAffinityEnabled: true
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution: []
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: kubernetes.io/hostname
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/instance: mariadb-server
+
+  # Bootstrap from scratch (not from backup)
+  bootstrapFrom: {}
+
+  # My.cnf configuration
+  myCnf: |
+    [mariadb]
+    bind-address=*
+    default_storage_engine=InnoDB
+    binlog_format=row
+    innodb_autoinc_lock_mode=2
+    innodb_buffer_pool_size=256M
+    max_allowed_packet=256M
+    max_connections=100
+
+---
+# Secret for root password
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-root-password
+  namespace: default
+type: Opaque
+stringData:
+  password: admin123
+
+---
+# Secret for user password  
+apiVersion: v1
+kind: Secret
+metadata:
+  name: mariadb-user-password
+  namespace: default
+type: Opaque
+stringData:
+  password: apppass123
