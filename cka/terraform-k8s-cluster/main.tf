@@ -12,13 +12,12 @@ provider "aws" {
   region = var.aws_region
 }
 
-# Security Group for Kubernetes Cluster
+# Security Group
 resource "aws_security_group" "k8s_cluster_sg" {
   name        = "${var.cluster_name}-sg"
   description = "Security group for Kubernetes cluster nodes"
   vpc_id      = var.vpc_id
 
-  # SSH access
   ingress {
     from_port   = 22
     to_port     = 22
@@ -26,7 +25,6 @@ resource "aws_security_group" "k8s_cluster_sg" {
     cidr_blocks = var.ssh_allowed_ips
   }
 
-  # Kubernetes API server
   ingress {
     from_port   = 6443
     to_port     = 6443
@@ -34,39 +32,34 @@ resource "aws_security_group" "k8s_cluster_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # etcd server client API
   ingress {
-    from_port   = 2379
-    to_port     = 2380
-    protocol    = "tcp"
-    self        = true
+    from_port = 2379
+    to_port   = 2380
+    protocol  = "tcp"
+    self      = true
   }
 
-  # Kubelet API
   ingress {
-    from_port   = 10250
-    to_port     = 10250
-    protocol    = "tcp"
-    self        = true
+    from_port = 10250
+    to_port   = 10250
+    protocol  = "tcp"
+    self      = true
   }
 
-  # kube-scheduler
   ingress {
-    from_port   = 10259
-    to_port     = 10259
-    protocol    = "tcp"
-    self        = true
+    from_port = 10259
+    to_port   = 10259
+    protocol  = "tcp"
+    self      = true
   }
 
-  # kube-controller-manager
   ingress {
-    from_port   = 10257
-    to_port     = 10257
-    protocol    = "tcp"
-    self        = true
+    from_port = 10257
+    to_port   = 10257
+    protocol  = "tcp"
+    self      = true
   }
 
-  # NodePort Services
   ingress {
     from_port   = 30000
     to_port     = 32767
@@ -74,15 +67,20 @@ resource "aws_security_group" "k8s_cluster_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Flannel VXLAN
   ingress {
-    from_port   = 8472
-    to_port     = 8472
-    protocol    = "udp"
-    self        = true
+    from_port = 4789
+    to_port   = 4789
+    protocol  = "udp"
+    self      = true
   }
 
-  # Allow all outbound traffic
+  ingress {
+    from_port = 179
+    to_port   = 179
+    protocol  = "tcp"
+    self      = true
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -97,7 +95,7 @@ resource "aws_security_group" "k8s_cluster_sg" {
   }
 }
 
-# Key Pair for SSH access
+# Key Pair
 resource "aws_key_pair" "k8s_key" {
   key_name   = "${var.cluster_name}-key"
   public_key = file(var.ssh_public_key_path)
@@ -108,12 +106,13 @@ resource "aws_key_pair" "k8s_key" {
   }
 }
 
-# Kubernetes Controller Node (Master)
+# Controller Nodes
 resource "aws_instance" "k8s_controller" {
-  ami           = var.ubuntu_ami
-  instance_type = var.controller_instance_type
-  key_name      = aws_key_pair.k8s_key.key_name
-  
+  count = var.controller_count
+
+  ami                         = var.ubuntu_ami
+  instance_type               = var.controller_instance_type
+  key_name                    = aws_key_pair.k8s_key.key_name
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.k8s_cluster_sg.id]
   associate_public_ip_address = true
@@ -126,23 +125,22 @@ resource "aws_instance" "k8s_controller" {
 
   user_data = <<-EOF
     #!/bin/bash
-    hostnamectl set-hostname DEVOPS-CLASS-2601-controller
+    hostnamectl set-hostname ${var.cluster_name}-controller-${count.index + 1}
   EOF
 
   tags = {
-    Name        = "DEVOPS-CLASS-2601-controller"
+    Name        = "${var.cluster_name}-controller-${count.index + 1}"
     Environment = var.environment
     Type        = "kubernetes-controller"
     Role        = "master"
   }
 }
 
-# Kubernetes Worker Node
+# Worker Node
 resource "aws_instance" "k8s_worker" {
-  ami           = var.ubuntu_ami
-  instance_type = var.worker_instance_type
-  key_name      = aws_key_pair.k8s_key.key_name
-  
+  ami                         = var.ubuntu_ami
+  instance_type               = var.worker_instance_type
+  key_name                    = aws_key_pair.k8s_key.key_name
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.k8s_cluster_sg.id]
   associate_public_ip_address = true
@@ -155,14 +153,13 @@ resource "aws_instance" "k8s_worker" {
 
   user_data = <<-EOF
     #!/bin/bash
-    hostnamectl set-hostname DEVOPS-CLASS-2601-worker
+    hostnamectl set-hostname ${var.cluster_name}-worker
   EOF
 
   tags = {
-    Name        = "DEVOPS-CLASS-2601-worker"
+    Name        = "${var.cluster_name}-worker"
     Environment = var.environment
     Type        = "kubernetes-worker"
     Role        = "worker"
   }
 }
-

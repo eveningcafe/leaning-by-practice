@@ -31,3 +31,4 @@ terraform.rc
 
 # Lock file (can be committed for team environments)
 .terraform.lock.hcl
+kubespray/

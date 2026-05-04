@@ -25,13 +25,19 @@ variable "vpc_id" {
 variable "subnet_id" {
   description = "Subnet ID for instances"
   type        = string
-  default     = "subnet-0c51b6b97f99b69ed"
+  default     = "subnet-00cc2f1df9ce195ab"  # devops-class-public, ap-southeast-1a
 }
 
 variable "ubuntu_ami" {
   description = "Ubuntu 22.04 LTS AMI ID"
   type        = string
   default     = "ami-01811d4912b4ccb26"  # Ubuntu 22.04 LTS in ap-southeast-1 (Singapore)
+}
+
+variable "controller_count" {
+  description = "Number of controller nodes (1 = single, 3 = HA)"
+  type        = number
+  default     = 1
 }
 
 variable "controller_instance_type" {

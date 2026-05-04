@@ -90,3 +90,10 @@ variable "tags" {
     Purpose     = "learning"
   }
 }
+
+# EBS CSI Driver Configuration
+variable "ebs_csi_driver_version" {
+  description = "Version of the EBS CSI driver addon"
+  type        = string
+  default     = "v1.59.0-eksbuild.1"  # Latest stable version for k8s 1.35
+}
