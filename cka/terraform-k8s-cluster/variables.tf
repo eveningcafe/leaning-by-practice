@@ -37,7 +37,7 @@ variable "ubuntu_ami" {
 variable "controller_count" {
   description = "Number of controller nodes (1 = single, 3 = HA)"
   type        = number
-  default     = 1
+  default     = 3
 }
 
 variable "controller_instance_type" {
