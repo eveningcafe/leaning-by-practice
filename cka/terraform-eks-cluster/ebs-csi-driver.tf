@@ -2,7 +2,7 @@
 
 # IAM role for the EBS CSI Driver
 resource "aws_iam_role" "ebs_csi_driver" {
-  name = "AmazonEKS_EBS_CSI_DriverRole"
+  name = "${var.cluster_name}-ebs-csi-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
