@@ -102,6 +102,8 @@ resource "aws_eks_cluster" "eks_cluster" {
   role_arn = aws_iam_role.eks_cluster_role.arn
   version  = var.kubernetes_version
 
+  # Không bật enabled_cluster_log_types — tránh phí CloudWatch (~$0.50/cluster/ngày)
+
   vpc_config {
     subnet_ids              = var.subnet_ids
     endpoint_private_access = false
