@@ -1,0 +1,3 @@
+[submodule "models/gstar-bootcamp"]
+	path = models/gstar-bootcamp
+	url = ../gstar-bootcamp.git
